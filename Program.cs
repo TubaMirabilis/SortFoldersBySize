@@ -1,5 +1,13 @@
 ﻿List<NameSizePair> pairs = new List<NameSizePair>();
-foreach (var item in new DirectoryInfo(@"E:\X-Plane 11\Custom Scenery").GetDirectories())
+Console.WriteLine("Type or paste the path that you want to annalyse:");
+var path = Console.ReadLine() ?? "";
+var dir = new DirectoryInfo(path);
+if(!dir.Exists)
+{
+    Console.WriteLine("Invalid path");
+    return;
+}
+foreach (var item in dir.GetDirectories())
 {
     pairs.Add(new NameSizePair
     {
@@ -7,8 +15,8 @@ foreach (var item in new DirectoryInfo(@"E:\X-Plane 11\Custom Scenery").GetDirec
         Size = DirSize(item)
     });
 }
-var ordered = pairs.OrderBy(p => p.Size);
-foreach(var p in ordered)
+pairs = pairs.OrderBy(p => p.Size).ToList();
+foreach(var p in pairs)
 {
     Console.WriteLine($"{p.Name}, {p.Size}");
 }
@@ -29,7 +37,6 @@ long DirSize(DirectoryInfo d)
     }
     return size;  
 }
-
 public class NameSizePair
 {
     public string? Name { get; set; }
