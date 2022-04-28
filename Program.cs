@@ -1,4 +1,6 @@
-﻿List<NameSizePair> pairs = new List<NameSizePair>();
+﻿using System.Collections.Concurrent;
+
+List<NameSizePair> pairs = new List<NameSizePair>();
 Console.WriteLine("Type or paste the path that you want to annalyse:");
 var path = Console.ReadLine() ?? "";
 var dir = new DirectoryInfo(path);
@@ -7,14 +9,24 @@ if(!dir.Exists)
     Console.WriteLine("Invalid path");
     return;
 }
-foreach (var item in dir.GetDirectories())
+Parallel.ForEach(dir.GetDirectories(), item =>
 {
-    pairs.Add(new NameSizePair
+    try
     {
-        Name = item.Name,
-        Size = DirSize(item)
-    });
-}
+        pairs.Add(new NameSizePair
+        {
+            Name = item.Name,
+            Size = DirSize(item)
+        });
+    }
+    catch (Exception ex)
+    {
+        if(ex is UnauthorizedAccessException)
+        {
+            return;
+        }
+    }
+});
 pairs = pairs.OrderBy(p => p.Size).ToList();
 foreach(var p in pairs)
 {
